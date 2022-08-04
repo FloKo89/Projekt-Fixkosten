@@ -17,6 +17,7 @@ class Fixkosten(tk.Tk):
         SeparatorHorizontal(self).grid(column=0, row=1, columnspan=2, sticky="ew")
         ResultFrame(self).grid(column=0, row=2, columnspan=2, sticky=tk.NW, padx=5, pady=5)
 
+
 class TopFrame(ttk.Frame):
     def __init__(self, container, **kwargs):
         super().__init__(container, **kwargs)
@@ -68,7 +69,7 @@ class TopFrame(ttk.Frame):
         self.radiobutton_debiting_interval_semiannual.grid(column=1, row=8, sticky="e")
         self.radiobutton_debiting_interval_yearly.grid(column=1, row=9, sticky="e")
 
-        self.treeview_fix_costs = ttk.Treeview(self, selectmode="browse", columns=("reciever", "sum", "debit interval"))
+        self.treeview_fix_costs = ttk.Treeview(self, selectmode="extended", columns=("reciever", "sum", "debit interval"))
         self.treeview_fix_costs.grid(column=3, row=0, rowspan=7, pady=15)
 
         self.treeview_fix_costs.heading("#0", text="Tree Column")
@@ -84,19 +85,29 @@ class TopFrame(ttk.Frame):
         self.scrollbar_list.grid(column=4, row=0, rowspan=7, sticky="ns")
         self.treeview_fix_costs.configure(xscrollcommand=self.scrollbar_list.set)
 
-        button_remove_from_list = ttk.Button(self, text="Entfernen", width=20)
+        button_remove_from_list = ttk.Button(self, text="Entfernen", width=20, command=self.delete_selected_fixed_costs)
         button_remove_from_list.grid(column=3, row=8, columnspan=2)
 
     def add_to_list(self):
         if self.entry_reciever.get() != "" and self.entry_sum.get() != "" and self.selected_debiting_interval.get() != "":
-            self.treeview_fix_costs.insert(parent="", index="end", text="item", values=(self.entry_reciever.get(), self.entry_sum.get(), self.selected_debiting_interval.get()))
+            self.treeview_fix_costs.insert(parent="", index="end", values=(self.entry_reciever.get(), self.entry_sum.get(), self.selected_debiting_interval.get()))
+            self.entry_reciever.delete(0, tk.END)
+            self.entry_sum.delete(0, tk.END)
+            self.selected_debiting_interval.set("")
         else:
             print("Ungülige Eingabe")
 
-
-    def check(self, event):
+    def check(self):
         self.net_income = float(self.entry_net_income.get())
         print(self.net_income)
+
+    def delete_selected_fixed_costs(self):
+        selected_fixed_costs = self.treeview_fix_costs.selection()
+        if selected_fixed_costs != ():
+            for selected_fixed_cost in selected_fixed_costs:
+                self.treeview_fix_costs.delete(selected_fixed_cost)
+        else:
+            print("Nichts ausgewählt!")
 
 
 class ResultFrame(ttk.Frame):
