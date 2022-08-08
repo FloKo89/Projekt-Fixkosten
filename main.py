@@ -157,4 +157,14 @@ class SeparatorVertical(ttk.Separator):
 
 
 root = Fixkosten()
+
+application_menu = tk.Menu(root)
+root.configure(menu=application_menu)
+file_menu = tk.Menu(application_menu, tearoff=0)
+file_menu.add_command(label="Datei laden")
+file_menu.add_command(label="Datei speichern")
+file_menu.add_separator()
+file_menu.add_command(label="Drucken")
+application_menu.add_cascade(label="Datei", menu=file_menu)
+
 root.mainloop()
