@@ -16,11 +16,11 @@ class Fixkosten(tk.Tk):
         TopFrame(self).grid(column=0, row=0, sticky=tk.NW, padx=5, pady=5)
         SeparatorHorizontal(self).grid(column=0, row=1, columnspan=2, sticky="ew")
         ResultFrame(self).grid(column=0, row=2, columnspan=2, sticky=tk.NW, padx=5, pady=5)
-        TopFrame.get_result_sum_monthly(self)
 
 
 
 class TopFrame(ttk.Frame):
+    dict_from_get_results = {}
     def __init__(self, container, **kwargs):
         super().__init__(container, **kwargs)
 
@@ -71,7 +71,7 @@ class TopFrame(ttk.Frame):
         self.radiobutton_debiting_interval_yearly.grid(column=1, row=9, sticky="e")
 
         self.treeview_fix_costs = ttk.Treeview(self, selectmode="extended", columns=("reciever", "sum", "debit interval"))
-        self.treeview_fix_costs.grid(column=3, row=0, rowspan=7, pady=15)
+        self.treeview_fix_costs.grid(column=3, row=0, rowspan=7, columnspan=2, pady=15)
 
         self.treeview_fix_costs.heading("#0", text="Tree Column")
         self.treeview_fix_costs.heading("reciever", text="Empfänger")
@@ -83,11 +83,14 @@ class TopFrame(ttk.Frame):
         self.treeview_fix_costs.column("debit interval", width=120)
 
         self.scrollbar_list = ttk.Scrollbar(self, orient="vertical", command=self.treeview_fix_costs.yview)
-        self.scrollbar_list.grid(column=4, row=0, rowspan=7, sticky="ns")
+        self.scrollbar_list.grid(column=5, row=0, rowspan=7, sticky="ns")
         self.treeview_fix_costs.configure(xscrollcommand=self.scrollbar_list.set)
 
         button_remove_from_list = ttk.Button(self, text="Entfernen", width=20, command=self.delete_selected_fixed_costs)
-        button_remove_from_list.grid(column=3, row=8, columnspan=2)
+        button_remove_from_list.grid(column=4, row=8)
+
+        button_calculate = ttk.Button(self, text="Berechnen", width=20, command=self.get_results)
+        button_calculate.grid(column=3, row=8)
 
     def add_to_list(self):
         if self.entry_reciever.get() != "" and self.entry_sum.get() != "" and self.selected_debiting_interval.get() != "":
@@ -106,9 +109,37 @@ class TopFrame(ttk.Frame):
         else:
             print("Nichts ausgewählt!")
 
-    def get_result_sum_monthly(self):
-        pass
+    def get_results(self):
+        list_monthly = []
+        list_quarterly = []
+        list_semiannual = []
+        list_yearly = []
+        for child in self.treeview_fix_costs.get_children():
+            #print(self.treeview_fix_costs.item(child))
+            if "monatlich" in self.treeview_fix_costs.item(child)["values"]:
+                list_monthly.append(self.treeview_fix_costs.item(child)["values"][1])
+            elif "quartalsmäßig" in self.treeview_fix_costs.item(child)["values"]:
+                list_quarterly.append(self.treeview_fix_costs.item(child)["values"][1])
+            elif "halbjährlich" in self.treeview_fix_costs.item(child)["values"]:
+                list_semiannual.append(self.treeview_fix_costs.item(child)["values"][1])
+            elif "jährlich" in self.treeview_fix_costs.item(child)["values"]:
+                list_yearly.append(self.treeview_fix_costs.item(child)["values"][1])
+        #monthly_sum = sum(list_monthly)
+        #quarterly_sum = sum(list_quarterly)
+        #semiannual_sum = sum(list_semiannual)
+        #yearly_sum = sum(list_yearly)
+        list_results = (sum(list_monthly), sum(list_quarterly), sum(list_semiannual), sum(list_yearly))
+        list_debit_interval = ("monatlich", "quartalsmäßig", "halbjährlich", "jährlich")
+        dict_from_get_results = dict(zip(list_debit_interval, list_results))
+        #print(list_debit_interval)
+        #print(list_results)
 
+        #print(monthly_sum)
+        #print(quarterly_sum)
+        #print(semiannual_sum)
+        #print(yearly_sum)
+
+        return dict_from_get_results
 
 class ResultFrame(ttk.Frame):
     def __init__(self, container, **kwargs):
@@ -116,6 +147,9 @@ class ResultFrame(ttk.Frame):
 
         self.columnconfigure(0, weight=4)
         self.rowconfigure(0, weight=1)
+
+        self.sum_monthly = tk.IntVar()
+        #self.sum_monthly.set(TopFrame.dict_from_get_results)
 
         label_result_monthly = ttk.Label(self, text="monatliche Kosten:", font=("Roboto", 14))
         label_result_monthly.grid(column=0, row=0, sticky="w", padx=20)
@@ -126,7 +160,7 @@ class ResultFrame(ttk.Frame):
         label_result_yearly = ttk.Label(self, text="jährliche Kosten:", font=("Roboto", 14))
         label_result_yearly.grid(column=0, row=3, sticky="w", padx=20)
 
-        label_result_sum_monthly = ttk.Label(self, text="Summe in €", foreground="red", font=("Roboto", 14))
+        label_result_sum_monthly = ttk.Label(self, text="Summe in €", textvariable=self.sum_monthly, foreground="red", font=("Roboto", 14))
         label_result_sum_monthly.grid(column=1, row=0)
         label_result_sum_quarterly = ttk.Label(self, text="Summe in €", foreground="red", font=("Roboto", 14))
         label_result_sum_quarterly.grid(column=1, row=1)
@@ -155,7 +189,6 @@ class SeparatorVertical(ttk.Separator):
 
         self.config(orient="vertical")
 
-
 root = Fixkosten()
 
 application_menu = tk.Menu(root)
@@ -172,5 +205,7 @@ application_menu.add_cascade(label="Datei", menu=file_menu)
 info_menu = tk.Menu(application_menu, tearoff=0)
 info_menu.add_command(label="Version")
 application_menu.add_cascade(label="Info", menu=info_menu)
+
+
 
 root.mainloop()
