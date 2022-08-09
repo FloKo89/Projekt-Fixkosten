@@ -16,6 +16,8 @@ class Fixkosten(tk.Tk):
         TopFrame(self).grid(column=0, row=0, sticky=tk.NW, padx=5, pady=5)
         SeparatorHorizontal(self).grid(column=0, row=1, columnspan=2, sticky="ew")
         ResultFrame(self).grid(column=0, row=2, columnspan=2, sticky=tk.NW, padx=5, pady=5)
+        TopFrame.get_result_sum_monthly(self)
+
 
 
 class TopFrame(ttk.Frame):
@@ -27,7 +29,6 @@ class TopFrame(ttk.Frame):
 
         self.entry_net_income = ttk.Entry(self, width=15)
         self.entry_net_income.focus()
-        self.entry_net_income.bind("<Return>", self.check)
         self.entry_net_income.grid(column=1, row=0, padx=20)
 
         label_currency = ttk.Label(self, text="€", font=("Roboto", 14))
@@ -97,10 +98,6 @@ class TopFrame(ttk.Frame):
         else:
             print("Ungülige Eingabe")
 
-    def check(self):
-        self.net_income = float(self.entry_net_income.get())
-        print(self.net_income)
-
     def delete_selected_fixed_costs(self):
         selected_fixed_costs = self.treeview_fix_costs.selection()
         if selected_fixed_costs != ():
@@ -108,6 +105,9 @@ class TopFrame(ttk.Frame):
                 self.treeview_fix_costs.delete(selected_fixed_cost)
         else:
             print("Nichts ausgewählt!")
+
+    def get_result_sum_monthly(self):
+        pass
 
 
 class ResultFrame(ttk.Frame):
