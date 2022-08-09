@@ -121,8 +121,8 @@ class ResultFrame(ttk.Frame):
         label_result_monthly.grid(column=0, row=0, sticky="w", padx=20)
         label_result_quarterly = ttk.Label(self, text="quartalsmäßige Kosten:", font=("Roboto", 14))
         label_result_quarterly.grid(column=0, row=1, sticky="w", padx=20)
-        label_result_semiaanual = ttk.Label(self, text="halbjährliche Kosten:", font=("Roboto", 14))
-        label_result_semiaanual.grid(column=0, row=2, sticky="w", padx=20)
+        label_result_semiannual = ttk.Label(self, text="halbjährliche Kosten:", font=("Roboto", 14))
+        label_result_semiannual.grid(column=0, row=2, sticky="w", padx=20)
         label_result_yearly = ttk.Label(self, text="jährliche Kosten:", font=("Roboto", 14))
         label_result_yearly.grid(column=0, row=3, sticky="w", padx=20)
 
@@ -165,6 +165,12 @@ file_menu.add_command(label="Datei laden")
 file_menu.add_command(label="Datei speichern")
 file_menu.add_separator()
 file_menu.add_command(label="Drucken")
+file_menu.add_separator()
+file_menu.add_command(label="Beenden")
 application_menu.add_cascade(label="Datei", menu=file_menu)
+
+info_menu = tk.Menu(application_menu, tearoff=0)
+info_menu.add_command(label="Version")
+application_menu.add_cascade(label="Info", menu=info_menu)
 
 root.mainloop()
