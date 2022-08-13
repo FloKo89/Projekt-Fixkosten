@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog
 
 
-class Fixkosten(tk.Tk):
+class MainWindow(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -11,17 +12,39 @@ class Fixkosten(tk.Tk):
         self.title("Fixkosten")
         self.style = ttk.Style()
         self.style.theme_use("xpnative")
-
         self.columnconfigure(0, weight=1)
-        TopFrame(self).grid(column=0, row=0, sticky=tk.NW, padx=5, pady=5)
+
+        self.frames = {}
+
+        window1 = TopFrame(self, self)
+        window1.grid(column=0, row=0, sticky=tk.NW, padx=5, pady=5)
         SeparatorHorizontal(self).grid(column=0, row=1, columnspan=2, sticky="ew")
-        ResultFrame(self).grid(column=0, row=2, columnspan=2, sticky=tk.NW, padx=5, pady=5)
+        window2 = ResultFrame(self, self)
+        window2.grid(column=0, row=2, columnspan=2, sticky=tk.NW, padx=5, pady=5)
+
+        self.frames[TopFrame] = window1
+        self.frames[ResultFrame] = window2
+
+        # Menu
+        application_menu = tk.Menu(self)
+        self.configure(menu=application_menu)
+        file_menu = tk.Menu(application_menu, tearoff=0)
+        file_menu.add_command(label="Datei laden", command=window1.open_file)
+        file_menu.add_command(label="Datei speichern", command=window1.save_file)
+        file_menu.add_separator()
+        file_menu.add_command(label="Drucken")
+        file_menu.add_separator()
+        file_menu.add_command(label="Beenden")
+        application_menu.add_cascade(label="Datei", menu=file_menu)
+
+        info_menu = tk.Menu(application_menu, tearoff=0)
+        info_menu.add_command(label="Version")
+        application_menu.add_cascade(label="Info", menu=info_menu)
 
 
 
 class TopFrame(ttk.Frame):
-    dict_from_get_results = {}
-    def __init__(self, container, **kwargs):
+    def __init__(self, container, controller, **kwargs):
         super().__init__(container, **kwargs)
 
         label_net_income = ttk.Label(self, text="Nettoeinkommen:", font=("Roboto", 14))
@@ -42,13 +65,15 @@ class TopFrame(ttk.Frame):
         label_reciever = ttk.Label(self, text="Empfänger:", font=("Roboto", 14))
         label_reciever.grid(column=0, row=3, sticky="w", padx=20)
 
-        self.entry_reciever = ttk.Entry(self, width=30)
+        self.entry_reciever_var = tk.StringVar()
+        self.entry_reciever = ttk.Entry(self, width=30, textvariable=self.entry_reciever_var)
         self.entry_reciever.grid(column=1, row=3)
 
         label_sum = ttk.Label(self, text="Betrag:", font=("Roboto", 14))
         label_sum.grid(column=0, row=4, sticky="w", padx=20, pady=5)
 
-        self.entry_sum = ttk.Entry(self, width=15)
+        self.entry_sum_var = tk.StringVar()
+        self.entry_sum = ttk.Entry(self, width=15, textvariable=self.entry_sum_var)
         self.entry_sum.grid(column=1, row=4)
 
         label_sum_currency = ttk.Label(self, text="€", font=("Roboto", 14))
@@ -93,8 +118,8 @@ class TopFrame(ttk.Frame):
         button_calculate.grid(column=3, row=8)
 
     def add_to_list(self):
-        if self.entry_reciever.get() != "" and self.entry_sum.get() != "" and self.selected_debiting_interval.get() != "":
-            self.treeview_fix_costs.insert(parent="", index="end", values=(self.entry_reciever.get(), self.entry_sum.get(), self.selected_debiting_interval.get()))
+        if self.entry_reciever_var.get() != "" and self.entry_sum_var.get() != "" and self.selected_debiting_interval.get() != "":
+            self.treeview_fix_costs.insert(parent="", index="end", values=(self.entry_reciever_var.get(), self.entry_sum_var.get(), self.selected_debiting_interval.get()))
             self.entry_reciever.delete(0, tk.END)
             self.entry_sum.delete(0, tk.END)
             self.selected_debiting_interval.set("")
@@ -115,7 +140,7 @@ class TopFrame(ttk.Frame):
         list_semiannual = []
         list_yearly = []
         for child in self.treeview_fix_costs.get_children():
-            #print(self.treeview_fix_costs.item(child))
+            print(self.treeview_fix_costs.item(child))
             if "monatlich" in self.treeview_fix_costs.item(child)["values"]:
                 list_monthly.append(self.treeview_fix_costs.item(child)["values"][1])
             elif "quartalsmäßig" in self.treeview_fix_costs.item(child)["values"]:
@@ -124,32 +149,37 @@ class TopFrame(ttk.Frame):
                 list_semiannual.append(self.treeview_fix_costs.item(child)["values"][1])
             elif "jährlich" in self.treeview_fix_costs.item(child)["values"]:
                 list_yearly.append(self.treeview_fix_costs.item(child)["values"][1])
-        #monthly_sum = sum(list_monthly)
-        #quarterly_sum = sum(list_quarterly)
-        #semiannual_sum = sum(list_semiannual)
-        #yearly_sum = sum(list_yearly)
+
         list_results = (sum(list_monthly), sum(list_quarterly), sum(list_semiannual), sum(list_yearly))
         list_debit_interval = ("monatlich", "quartalsmäßig", "halbjährlich", "jährlich")
         dict_from_get_results = dict(zip(list_debit_interval, list_results))
-        #print(list_debit_interval)
-        #print(list_results)
-
-        #print(monthly_sum)
-        #print(quarterly_sum)
-        #print(semiannual_sum)
-        #print(yearly_sum)
 
         return dict_from_get_results
 
+    def open_file(self):
+        pass
+
+
+    def save_file(self):
+        file_name = filedialog.asksaveasfilename(defaultextension=(".txt"),
+                                                 initialdir="C:/Users/fkotu/Desktop/Fixkosten",
+                                                 title="Datei speichern")
+        if file_name:
+            file = open(file_name, "w")
+            for line in self.treeview_fix_costs.get_children():
+                for value in self.treeview_fix_costs.item(line)["values"]:
+                    file.write(str(value) + "\n")
+            file.close()
+
+
 class ResultFrame(ttk.Frame):
-    def __init__(self, container, **kwargs):
+    def __init__(self, container, controller, **kwargs):
         super().__init__(container, **kwargs)
 
         self.columnconfigure(0, weight=4)
         self.rowconfigure(0, weight=1)
 
         self.sum_monthly = tk.IntVar()
-        #self.sum_monthly.set(TopFrame.dict_from_get_results)
 
         label_result_monthly = ttk.Label(self, text="monatliche Kosten:", font=("Roboto", 14))
         label_result_monthly.grid(column=0, row=0, sticky="w", padx=20)
@@ -189,23 +219,5 @@ class SeparatorVertical(ttk.Separator):
 
         self.config(orient="vertical")
 
-root = Fixkosten()
-
-application_menu = tk.Menu(root)
-root.configure(menu=application_menu)
-file_menu = tk.Menu(application_menu, tearoff=0)
-file_menu.add_command(label="Datei laden")
-file_menu.add_command(label="Datei speichern")
-file_menu.add_separator()
-file_menu.add_command(label="Drucken")
-file_menu.add_separator()
-file_menu.add_command(label="Beenden")
-application_menu.add_cascade(label="Datei", menu=file_menu)
-
-info_menu = tk.Menu(application_menu, tearoff=0)
-info_menu.add_command(label="Version")
-application_menu.add_cascade(label="Info", menu=info_menu)
-
-
-
+root = MainWindow()
 root.mainloop()
