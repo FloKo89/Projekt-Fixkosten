@@ -44,8 +44,11 @@ class MainWindow(tk.Tk):
 
 
 class TopFrame(ttk.Frame):
+
     def __init__(self, container, controller, **kwargs):
         super().__init__(container, **kwargs)
+
+        self.dict_from_get_results = {}
 
         label_net_income = ttk.Label(self, text="Nettoeinkommen:", font=("Roboto", 14))
         label_net_income.grid(column=0, row=0, padx=20, pady=10)
@@ -123,7 +126,7 @@ class TopFrame(ttk.Frame):
         button_remove_from_list = ttk.Button(self, text="Entfernen", width=20, command=self.delete_selected_fixed_costs)
         button_remove_from_list.grid(column=4, row=8)
 
-        button_calculate = ttk.Button(self, text="Berechnen", width=20, command=self.get_results)
+        button_calculate = ttk.Button(self, text="Berechnen", width=20, command=self.get_sum_monthly)
         button_calculate.grid(column=3, row=8)
 
     def add_to_list(self):
@@ -165,8 +168,9 @@ class TopFrame(ttk.Frame):
         list_results = (sum(list_monthly), sum(list_quarterly), sum(list_semiannual), sum(list_yearly))
         list_debit_interval = ("monatlich", "quartalsmäßig", "halbjährlich", "jährlich")
         dict_from_get_results = dict(zip(list_debit_interval, list_results))
+        print(dict_from_get_results)
 
-        return dict_from_get_results
+        return self.dict_from_get_results
 
     def open_file(self):
         file_name = filedialog.askopenfilename(initialdir="C:/Users/fkotu/Desktop/Fixkosten", title="Datei öffnen")
@@ -188,6 +192,23 @@ class TopFrame(ttk.Frame):
                 file.writerow(row)
 
 
+    def get_sum_monthly(self):
+        list_monthly = []
+        for child in self.treeview_fix_costs.get_children():
+            if "monatlich" in self.treeview_fix_costs.item(child)["values"]:
+                list_monthly.append(self.treeview_fix_costs.item(child)["values"][1])
+
+        print(list_monthly)
+        return sum(list_monthly)
+
+    def set_sum_monthly(self, value):
+        self.sum_monthly = value
+
+    sum_monthly = property(get_sum_monthly, set_sum_monthly)
+
+
+
+
 class ResultFrame(ttk.Frame):
     def __init__(self, container, controller, **kwargs):
         super().__init__(container, **kwargs)
@@ -203,7 +224,9 @@ class ResultFrame(ttk.Frame):
         label_result_yearly = ttk.Label(self, text="jährliche Kosten:", font=("Roboto", 14))
         label_result_yearly.grid(column=0, row=3, sticky="w", padx=20)
 
-        label_result_sum_monthly = ttk.Label(self, text="Summe in €", foreground="red", font=("Roboto", 14))
+        sum_monthly = tk.StringVar()
+        sum_monthly.set(TopFrame.sum_monthly.getter)
+        label_result_sum_monthly = ttk.Label(self, text=sum_monthly, textvariable=sum_monthly, foreground="red", font=("Roboto", 14))
         label_result_sum_monthly.grid(column=1, row=0)
         label_result_sum_quarterly = ttk.Label(self, text="Summe in €", foreground="red", font=("Roboto", 14))
         label_result_sum_quarterly.grid(column=1, row=1)
