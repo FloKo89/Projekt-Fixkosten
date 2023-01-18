@@ -206,9 +206,6 @@ class TopFrame(ttk.Frame):
 
     sum_monthly = property(get_sum_monthly, set_sum_monthly)
 
-
-
-
 class ResultFrame(ttk.Frame):
     def __init__(self, container, controller, **kwargs):
         super().__init__(container, **kwargs)
@@ -224,9 +221,9 @@ class ResultFrame(ttk.Frame):
         label_result_yearly = ttk.Label(self, text="jährliche Kosten:", font=("Roboto", 14))
         label_result_yearly.grid(column=0, row=3, sticky="w", padx=20)
 
-        sum_monthly = tk.StringVar()
-        sum_monthly.set(TopFrame.sum_monthly.getter)
-        label_result_sum_monthly = ttk.Label(self, text=sum_monthly, textvariable=sum_monthly, foreground="red", font=("Roboto", 14))
+        sum_monthly = tk.IntVar()
+        sum_monthly.set(TopFrame.sum_monthly.get())
+        label_result_sum_monthly = ttk.Label(self, textvariable=sum_monthly, foreground="red", font=("Roboto", 14))
         label_result_sum_monthly.grid(column=1, row=0)
         label_result_sum_quarterly = ttk.Label(self, text="Summe in €", foreground="red", font=("Roboto", 14))
         label_result_sum_quarterly.grid(column=1, row=1)
