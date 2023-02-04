@@ -222,7 +222,7 @@ class ResultFrame(ttk.Frame):
         label_result_yearly.grid(column=0, row=3, sticky="w", padx=20)
 
         sum_monthly = tk.IntVar()
-        sum_monthly.set(TopFrame.sum_monthly.get())
+        sum_monthly.set(TopFrame.sum_monthly)
         label_result_sum_monthly = ttk.Label(self, textvariable=sum_monthly, foreground="red", font=("Roboto", 14))
         label_result_sum_monthly.grid(column=1, row=0)
         label_result_sum_quarterly = ttk.Label(self, text="Summe in €", foreground="red", font=("Roboto", 14))
