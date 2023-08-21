@@ -4,6 +4,18 @@ import csv
 from tkinter import filedialog
 
 
+class SeparatorHorizontal(ttk.Separator):
+    def __init__(self, parent, **kwargs):
+        super().__init__(parent, orient="horizontal", **kwargs)
+
+
+class SeparatorVertical(ttk.Separator):
+    def __init__(self, container, **kwargs):
+        super().__init__(container, **kwargs)
+
+        self.config(orient="vertical")
+
+
 class MainWindow(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -17,12 +29,13 @@ class MainWindow(tk.Tk):
 
         self.input_frame = InputFrame(self, self)
         self.input_frame.grid(column=0, row=0, sticky=tk.NW, padx=5, pady=5)
-        separator_bottom_horizontal = ttk.Separator(self, orient="horizontal")
-        separator_bottom_horizontal.grid(column=0, row=1, columnspan=2, sticky="ew")
+        SeparatorHorizontal(self).grid(column=0, row=1, columnspan=2, sticky="ew")
         self.result_frame = ResultFrame(self, self)
         self.result_frame.grid(
             column=0, row=2, columnspan=2, sticky=tk.NW, padx=5, pady=5
         )
+
+        sum_monthly = tk.IntVar(value=0)
 
         # Menu
         application_menu = tk.Menu(self)
@@ -61,8 +74,7 @@ class InputFrame(ttk.Frame):
         label_currency = ttk.Label(self, text="€", font=("Roboto", 14))
         label_currency.grid(column=2, row=0)
 
-        seperator_top_horizontal = ttk.Separator(self, orient="horizontal")
-        seperator_top_horizontal.grid(column=0, row=1, columnspan=2, sticky="ew")
+        SeparatorHorizontal(self).grid(column=0, row=1, columnspan=2, sticky="ew")
 
         label_new_fixed_costs = ttk.Label(
             self, text="Neue Fixkosten hinzufügen", font=("Roboto", 14)
@@ -189,9 +201,37 @@ class InputFrame(ttk.Frame):
         else:
             print("Nichts ausgewählt!")
 
+    def get_results(self):
+        list_monthly = []
+        list_quarterly = []
+        list_semiannual = []
+        list_yearly = []
+        for child in self.treeview_fix_costs.get_children():
+            print(self.treeview_fix_costs.item(child))
+            if "monatlich" in self.treeview_fix_costs.item(child)["values"]:
+                list_monthly.append(self.treeview_fix_costs.item(child)["values"][1])
+            elif "quartalsmäßig" in self.treeview_fix_costs.item(child)["values"]:
+                list_quarterly.append(self.treeview_fix_costs.item(child)["values"][1])
+            elif "halbjährlich" in self.treeview_fix_costs.item(child)["values"]:
+                list_semiannual.append(self.treeview_fix_costs.item(child)["values"][1])
+            elif "jährlich" in self.treeview_fix_costs.item(child)["values"]:
+                list_yearly.append(self.treeview_fix_costs.item(child)["values"][1])
+
+        list_results = (
+            sum(list_monthly),
+            sum(list_quarterly),
+            sum(list_semiannual),
+            sum(list_yearly),
+        )
+        list_debit_interval = ("monatlich", "quartalsmäßig", "halbjährlich", "jährlich")
+        dict_from_get_results = dict(zip(list_debit_interval, list_results))
+        print(dict_from_get_results)
+
+        return self.dict_from_get_results
+
     def open_file(self):
         file_name = filedialog.askopenfilename(
-            initialdir="savefiles", title="Datei öffnen"
+            initialdir="C:/Users/fkotu/Desktop/Fixkosten", title="Datei öffnen"
         )
         with open(file_name, "r") as my_file:
             file = csv.reader(my_file, delimiter=",")
@@ -202,7 +242,7 @@ class InputFrame(ttk.Frame):
 
     def save_file(self):
         file_name = filedialog.asksaveasfilename(
-            initialdir="savefiles", title="Datei speichern"
+            initialdir="C:/Users/fkotu/Desktop/Fixkosten", title="Datei speichern"
         )
         with open(file_name, "w", newline="") as my_file:
             file = csv.writer(my_file, delimiter=",")
@@ -226,7 +266,7 @@ class InputFrame(ttk.Frame):
 class ResultFrame(ttk.Frame):
     def __init__(self, container, controller, **kwargs):
         super().__init__(container, **kwargs)
-        self.controller = controller
+
         self.columnconfigure(0, weight=4)
         self.rowconfigure(0, weight=1)
 
@@ -265,8 +305,7 @@ class ResultFrame(ttk.Frame):
         )
         label_result_sum_yearly.grid(column=1, row=3)
 
-        separator_vertical = ttk.Separator(self, orient="vertical")
-        separator_vertical.grid(column=2, row=0, rowspan=4, sticky="ns", padx=35)
+        SeparatorVertical(self).grid(column=2, row=0, rowspan=4, sticky="ns", padx=35)
 
         label_result_sum_total = ttk.Label(
             self, text="Vom Nettogehalt bleiben im Schnitt übrig:", font=("Roboto", 14)
