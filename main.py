@@ -48,8 +48,10 @@ class InputFrame(ttk.Frame):
         super().__init__(container, **kwargs)
 
         self.controller = controller
-        self.dict_from_get_results = {}
         self.sum_monthly = tk.IntVar(value=0)
+        self.sum_quarterly = tk.IntVar(value=0)
+        self.sum_semiannual = tk.IntVar(value=0)
+        self.sum_yearly = tk.IntVar(value=0)
 
         label_net_income = ttk.Label(self, text="Nettoeinkommen:", font=("Roboto", 14))
         label_net_income.grid(column=0, row=0, padx=20, pady=10)
@@ -156,7 +158,7 @@ class InputFrame(ttk.Frame):
         button_remove_from_list.grid(column=4, row=8)
 
         button_calculate = ttk.Button(
-            self, text="Berechnen", width=20, command=self.get_sum_monthly
+            self, text="Berechnen", width=20, command=self.calculate_sums
         )
         button_calculate.grid(column=3, row=8)
 
@@ -222,6 +224,42 @@ class InputFrame(ttk.Frame):
         self.sum_monthly.set(sum(list_monthly))
         return sum(list_monthly)
 
+    def get_sum_quarterly(self):
+        list_quarterly = []
+        for child in self.treeview_fix_costs.get_children():
+            if "quartalsmäßig" in self.treeview_fix_costs.item(child)["values"]:
+                list_quarterly.append(
+                    int(self.treeview_fix_costs.item(child)["values"][1])
+                )
+        self.sum_quarterly.set(sum(list_quarterly))
+        return sum(list_quarterly)
+
+    def get_sum_semiannual(self):
+        list_semiannual = []
+        for child in self.treeview_fix_costs.get_children():
+            if "halbjährlich" in self.treeview_fix_costs.item(child)["values"]:
+                list_semiannual.append(
+                    int(self.treeview_fix_costs.item(child)["values"][1])
+                )
+        self.sum_semiannual.set(sum(list_semiannual))
+        return sum(list_semiannual)
+
+    def get_sum_yearly(self):
+        list_yearly = []
+        for child in self.treeview_fix_costs.get_children():
+            if "jährlich" in self.treeview_fix_costs.item(child)["values"]:
+                list_yearly.append(
+                    int(self.treeview_fix_costs.item(child)["values"][1])
+                )
+        self.sum_yearly.set(sum(list_yearly))
+        return sum(list_yearly)
+
+    def calculate_sums(self):
+        self.get_sum_monthly()
+        self.get_sum_quarterly()
+        self.get_sum_semiannual()
+        self.get_sum_yearly()
+
 
 class ResultFrame(ttk.Frame):
     def __init__(self, container, controller, **kwargs):
@@ -234,14 +272,17 @@ class ResultFrame(ttk.Frame):
             self, text="monatliche Kosten:", font=("Roboto", 14)
         )
         label_result_monthly.grid(column=0, row=0, sticky="w", padx=20)
+
         label_result_quarterly = ttk.Label(
             self, text="quartalsmäßige Kosten:", font=("Roboto", 14)
         )
         label_result_quarterly.grid(column=0, row=1, sticky="w", padx=20)
+
         label_result_semiannual = ttk.Label(
             self, text="halbjährliche Kosten:", font=("Roboto", 14)
         )
         label_result_semiannual.grid(column=0, row=2, sticky="w", padx=20)
+
         label_result_yearly = ttk.Label(
             self, text="jährliche Kosten:", font=("Roboto", 14)
         )
@@ -252,16 +293,22 @@ class ResultFrame(ttk.Frame):
             self, textvariable=sum_monthly, foreground="red", font=("Roboto", 14)
         )
         label_result_sum_monthly.grid(column=1, row=0)
+
+        sum_quarterly = controller.input_frame.sum_quarterly
         label_result_sum_quarterly = ttk.Label(
-            self, text="Summe in €", foreground="red", font=("Roboto", 14)
+            self, textvariable=sum_quarterly, foreground="red", font=("Roboto", 14)
         )
         label_result_sum_quarterly.grid(column=1, row=1)
+
+        sum_semiannual = controller.input_frame.sum_semiannual
         label_result_sum_semiannual = ttk.Label(
-            self, text="Summe in €", foreground="red", font=("Roboto", 14)
+            self, textvariable=sum_semiannual, foreground="red", font=("Roboto", 14)
         )
         label_result_sum_semiannual.grid(column=1, row=2)
+
+        sum_yearly = controller.input_frame.sum_yearly
         label_result_sum_yearly = ttk.Label(
-            self, text="Summe in €", foreground="red", font=("Roboto", 14)
+            self, textvariable=sum_yearly, foreground="red", font=("Roboto", 14)
         )
         label_result_sum_yearly.grid(column=1, row=3)
 
