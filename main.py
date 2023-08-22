@@ -194,9 +194,15 @@ class InputFrame(ttk.Frame):
                 self.entry_sum.delete(0, tk.END)
                 self.selected_debiting_interval.set("")
             except ValueError:
-                print("Ungültige Eingabe")
+                messagebox.showerror(
+                    "Fehler",
+                    "Empfänger, Betrag und Abbuchungsintervall müssen ausgefüllt sein!",
+                )
         else:
-            print("Ungültige Eingabe")
+            messagebox.showerror(
+                "Fehler",
+                "Empfänger, Betrag und Abbuchungsintervall müssen ausgefüllt sein!",
+            )
 
         self.is_saved = False
 
@@ -206,7 +212,7 @@ class InputFrame(ttk.Frame):
             for selected_fixed_cost in selected_fixed_costs:
                 self.treeview_fix_costs.delete(selected_fixed_cost)
         else:
-            print("Nichts ausgewählt!")
+            messagebox.showerror("Fehler", "Nichts ausgewählt!")
 
         self.calculate_sums()
         self.is_saved = False
