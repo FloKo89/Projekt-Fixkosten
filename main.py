@@ -3,7 +3,6 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 import csv
-import locale
 
 
 class MainWindow(tk.Tk):
@@ -380,6 +379,5 @@ class ResultFrame(ttk.Frame):
 
 
 if __name__ == "__main__":
-    locale.setlocale(locale.LC_ALL, "de_DE.UTF-8")
     root = MainWindow()
     root.mainloop()
