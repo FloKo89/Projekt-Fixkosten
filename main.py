@@ -202,18 +202,25 @@ class InputFrame(ttk.Frame):
         else:
             print("Nichts ausgewählt!")
 
+        self.calculate_sums()
+
     def open_file(self):
         file_name = filedialog.askopenfilename(
             initialdir="savefiles",
             title="Datei öffnen",
             filetypes=(("CSV-Datei", "*.csv"),),
         )
+
+        self.treeview_fix_costs.delete(*self.treeview_fix_costs.get_children())
+
         with open(file_name, "r") as my_file:
             file = csv.reader(my_file, delimiter=",")
 
             for row in file:
                 print("load row:", row)
                 self.treeview_fix_costs.insert("", "end", values=row)
+
+        self.calculate_sums()
 
     def save_file(self):
         file_name = filedialog.asksaveasfilename(
@@ -278,12 +285,12 @@ class InputFrame(ttk.Frame):
 
     def validate_input(self, new_text):
         if new_text == "":
-            return True  # Erlaube leere Eingabe
+            return True
 
-        new_text = new_text.replace(",", ".")  # Ändere Komma in Punkt
+        new_text = new_text.replace(",", ".")
         try:
             float(new_text)
-            self.entry_sum_var.set(new_text)  # Setze den korrigierten Wert zurück
+            self.entry_sum_var.set(new_text)
             return True
         except ValueError:
             return False
