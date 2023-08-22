@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
-import csv
 from tkinter import filedialog
+import csv
+import locale
 
 
 class MainWindow(tk.Tk):
@@ -48,15 +49,16 @@ class InputFrame(ttk.Frame):
         super().__init__(container, **kwargs)
 
         self.controller = controller
-        self.sum_monthly = tk.IntVar(value=0)
-        self.sum_quarterly = tk.IntVar(value=0)
-        self.sum_semiannual = tk.IntVar(value=0)
-        self.sum_yearly = tk.IntVar(value=0)
+        self.sum_monthly = tk.DoubleVar(value=0.00)
+        self.sum_quarterly = tk.DoubleVar(value=0.00)
+        self.sum_semiannual = tk.DoubleVar(value=0.00)
+        self.sum_yearly = tk.DoubleVar(value=0.00)
 
         label_net_income = ttk.Label(self, text="Nettoeinkommen:", font=("Roboto", 14))
         label_net_income.grid(column=0, row=0, padx=20, pady=10)
 
         self.entry_net_income = ttk.Entry(self, width=15)
+        self.entry_net_income.insert(0, "0")
         self.entry_net_income.focus()
         self.entry_net_income.grid(column=1, row=0, padx=20)
 
@@ -85,8 +87,11 @@ class InputFrame(ttk.Frame):
         label_sum = ttk.Label(self, text="Betrag:", font=("Roboto", 14))
         label_sum.grid(column=0, row=4, sticky="w", padx=20, pady=5)
 
-        self.entry_sum_var = tk.StringVar()
+        self.entry_sum_var = tk.DoubleVar(value=0.00)
         self.entry_sum = ttk.Entry(self, width=15, textvariable=self.entry_sum_var)
+        self.entry_sum.configure(
+            validate="key", validatecommand=(self.validate_input, "%P")
+        )
         self.entry_sum.grid(column=1, row=4)
 
         label_sum_currency = ttk.Label(self, text="€", font=("Roboto", 14))
@@ -165,21 +170,27 @@ class InputFrame(ttk.Frame):
     def add_to_list(self):
         if (
             self.entry_receiver_var.get() != ""
-            and self.entry_sum_var.get() != ""
+            and self.entry_sum.get() != ""
             and self.selected_debiting_interval.get() != ""
         ):
-            self.treeview_fix_costs.insert(
-                parent="",
-                index="end",
-                values=(
-                    self.entry_receiver_var.get(),
-                    self.entry_sum_var.get(),
-                    self.selected_debiting_interval.get(),
-                ),
-            )
-            self.entry_receiver.delete(0, tk.END)
-            self.entry_sum.delete(0, tk.END)
-            self.selected_debiting_interval.set("")
+            try:
+                formatted_sum = locale.format(
+                    "%.2f", float(self.entry_sum.get().replace(",", "."))
+                )
+                self.treeview_fix_costs.insert(
+                    parent="",
+                    index="end",
+                    values=(
+                        self.entry_receiver_var.get(),
+                        formatted_sum,
+                        self.selected_debiting_interval.get(),
+                    ),
+                )
+                self.entry_receiver.delete(0, tk.END)
+                self.entry_sum.delete(0, tk.END)
+                self.selected_debiting_interval.set("")
+            except ValueError:
+                print("Ungültige Eingabe")
         else:
             print("Ungültige Eingabe")
 
@@ -193,7 +204,9 @@ class InputFrame(ttk.Frame):
 
     def open_file(self):
         file_name = filedialog.askopenfilename(
-            initialdir="savefiles", title="Datei öffnen"
+            initialdir="savefiles",
+            title="Datei öffnen",
+            filetypes=(("CSV-Datei", "*.csv"),),
         )
         with open(file_name, "r") as my_file:
             file = csv.reader(my_file, delimiter=",")
@@ -204,7 +217,10 @@ class InputFrame(ttk.Frame):
 
     def save_file(self):
         file_name = filedialog.asksaveasfilename(
-            initialdir="savefiles", title="Datei speichern"
+            initialdir="savefiles",
+            title="Datei speichern",
+            defaultextension=".csv",
+            filetypes=(("CSV-Datei", "*.csv"),),
         )
         with open(file_name, "w", newline="") as my_file:
             file = csv.writer(my_file, delimiter=",")
@@ -219,7 +235,7 @@ class InputFrame(ttk.Frame):
         for child in self.treeview_fix_costs.get_children():
             if "monatlich" in self.treeview_fix_costs.item(child)["values"]:
                 list_monthly.append(
-                    int(self.treeview_fix_costs.item(child)["values"][1])
+                    float(self.treeview_fix_costs.item(child)["values"][1])
                 )
         self.sum_monthly.set(sum(list_monthly))
         return sum(list_monthly)
@@ -229,7 +245,7 @@ class InputFrame(ttk.Frame):
         for child in self.treeview_fix_costs.get_children():
             if "quartalsmäßig" in self.treeview_fix_costs.item(child)["values"]:
                 list_quarterly.append(
-                    int(self.treeview_fix_costs.item(child)["values"][1])
+                    float(self.treeview_fix_costs.item(child)["values"][1])
                 )
         self.sum_quarterly.set(sum(list_quarterly))
         return sum(list_quarterly)
@@ -239,7 +255,7 @@ class InputFrame(ttk.Frame):
         for child in self.treeview_fix_costs.get_children():
             if "halbjährlich" in self.treeview_fix_costs.item(child)["values"]:
                 list_semiannual.append(
-                    int(self.treeview_fix_costs.item(child)["values"][1])
+                    float(self.treeview_fix_costs.item(child)["values"][1])
                 )
         self.sum_semiannual.set(sum(list_semiannual))
         return sum(list_semiannual)
@@ -249,7 +265,7 @@ class InputFrame(ttk.Frame):
         for child in self.treeview_fix_costs.get_children():
             if "jährlich" in self.treeview_fix_costs.item(child)["values"]:
                 list_yearly.append(
-                    int(self.treeview_fix_costs.item(child)["values"][1])
+                    float(self.treeview_fix_costs.item(child)["values"][1])
                 )
         self.sum_yearly.set(sum(list_yearly))
         return sum(list_yearly)
@@ -259,6 +275,18 @@ class InputFrame(ttk.Frame):
         self.get_sum_quarterly()
         self.get_sum_semiannual()
         self.get_sum_yearly()
+
+    def validate_input(self, new_text):
+        if new_text == "":
+            return True  # Erlaube leere Eingabe
+
+        new_text = new_text.replace(",", ".")  # Ändere Komma in Punkt
+        try:
+            float(new_text)
+            self.entry_sum_var.set(new_text)  # Setze den korrigierten Wert zurück
+            return True
+        except ValueError:
+            return False
 
 
 class ResultFrame(ttk.Frame):
@@ -327,5 +355,7 @@ class ResultFrame(ttk.Frame):
 
 
 if __name__ == "__main__":
+    locale.setlocale(locale.LC_ALL, "de_DE.UTF-8")
+
     root = MainWindow()
     root.mainloop()
