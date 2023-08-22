@@ -41,8 +41,19 @@ class MainWindow(tk.Tk):
         application_menu.add_cascade(label="Datei", menu=file_menu)
 
         info_menu = tk.Menu(application_menu, tearoff=0)
-        info_menu.add_command(label="Version")
+        info_menu.add_command(label="Version", command=self.show_version_info)
         application_menu.add_cascade(label="Info", menu=info_menu)
+
+    def show_version_info(self):
+        version = "0.0.1"
+        release_date = "22. August 2023"
+        developer_info = "Entwickelt von FloKo. \nAlle Rechte vorbehalten.\n"
+        contact_info = "Kontakt: f.kotulla@gmx.de"
+        website_link = (
+            "Für weitere Informationen besuchen Sie: https://shorturl.at/eru14"
+        )
+        info_text = f"Version: {version}\nVeröffentlicht am: {release_date}\n\n{developer_info}\n{contact_info}\n{website_link}"
+        messagebox.showinfo("Version Informationen", info_text)
 
 
 class InputFrame(ttk.Frame):
@@ -230,7 +241,6 @@ class InputFrame(ttk.Frame):
             file = csv.reader(my_file, delimiter=",")
 
             for row in file:
-                print("load row:", row)
                 self.treeview_fix_costs.insert("", "end", values=row)
 
         self.calculate_sums()
@@ -248,7 +258,6 @@ class InputFrame(ttk.Frame):
 
             for row_id in self.treeview_fix_costs.get_children():
                 row = self.treeview_fix_costs.item(row_id)["values"]
-                print("save row:", row)
                 file.writerow(row)
 
         self.is_saved = True
