@@ -237,51 +237,19 @@ class InputFrame(ttk.Frame):
                 print("save row:", row)
                 file.writerow(row)
 
-    def get_sum_monthly(self):
-        list_monthly = []
-        for child in self.treeview_fix_costs.get_children():
-            if "monatlich" in self.treeview_fix_costs.item(child)["values"]:
-                list_monthly.append(
-                    float(self.treeview_fix_costs.item(child)["values"][1])
-                )
-        self.sum_monthly.set(sum(list_monthly))
-        return sum(list_monthly)
+    def get_sum(self, interval):
+        sum_list = []
 
-    def get_sum_quarterly(self):
-        list_quarterly = []
         for child in self.treeview_fix_costs.get_children():
-            if "quartalsmäßig" in self.treeview_fix_costs.item(child)["values"]:
-                list_quarterly.append(
-                    float(self.treeview_fix_costs.item(child)["values"][1])
-                )
-        self.sum_quarterly.set(sum(list_quarterly))
-        return sum(list_quarterly)
-
-    def get_sum_semiannual(self):
-        list_semiannual = []
-        for child in self.treeview_fix_costs.get_children():
-            if "halbjährlich" in self.treeview_fix_costs.item(child)["values"]:
-                list_semiannual.append(
-                    float(self.treeview_fix_costs.item(child)["values"][1])
-                )
-        self.sum_semiannual.set(sum(list_semiannual))
-        return sum(list_semiannual)
-
-    def get_sum_yearly(self):
-        list_yearly = []
-        for child in self.treeview_fix_costs.get_children():
-            if "jährlich" in self.treeview_fix_costs.item(child)["values"]:
-                list_yearly.append(
-                    float(self.treeview_fix_costs.item(child)["values"][1])
-                )
-        self.sum_yearly.set(sum(list_yearly))
-        return sum(list_yearly)
+            if interval in self.treeview_fix_costs.item(child)["values"]:
+                sum_list.append(float(self.treeview_fix_costs.item(child)["values"][1]))
+        return sum(sum_list)
 
     def calculate_sums(self):
-        self.get_sum_monthly()
-        self.get_sum_quarterly()
-        self.get_sum_semiannual()
-        self.get_sum_yearly()
+        self.sum_monthly.set(self.get_sum("monatlich"))
+        self.sum_quarterly.set(self.get_sum("quartalsmäßig"))
+        self.sum_semiannual.set(self.get_sum("halbjährlich"))
+        self.sum_yearly.set(self.get_sum("jährlich"))
 
     def validate_input(self, new_text):
         if new_text == "":
