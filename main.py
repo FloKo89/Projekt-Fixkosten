@@ -189,9 +189,12 @@ class InputFrame(ttk.Frame):
             and self.selected_debiting_interval.get() != ""
         ):
             try:
-                formatted_sum = locale.format(
-                    "%.2f", float(self.entry_sum.get().replace(",", "."))
+                formatted_sum = (
+                    f"{float(self.entry_sum.get().replace(',', '.')):.2f}".replace(
+                        ".", ","
+                    )
                 )
+
                 self.treeview_fix_costs.insert(
                     parent="",
                     index="end",
@@ -216,6 +219,7 @@ class InputFrame(ttk.Frame):
             )
 
         self.is_saved = False
+        self.calculate_sums()
 
     def delete_selected_fixed_costs(self):
         selected_fixed_costs = self.treeview_fix_costs.selection()
@@ -277,14 +281,24 @@ class InputFrame(ttk.Frame):
 
         for child in self.treeview_fix_costs.get_children():
             if interval in self.treeview_fix_costs.item(child)["values"]:
-                sum_list.append(float(self.treeview_fix_costs.item(child)["values"][1]))
+                sum_list.append(
+                    float(
+                        self.treeview_fix_costs.item(child)["values"][1].replace(
+                            ",", "."
+                        )
+                    )
+                )
         return sum(sum_list)
 
     def calculate_sums(self):
-        self.sum_monthly.set(self.get_sum("monatlich"))
-        self.sum_quarterly.set(self.get_sum("quartalsmäßig"))
-        self.sum_semiannual.set(self.get_sum("halbjährlich"))
-        self.sum_yearly.set(self.get_sum("jährlich"))
+        self.sum_monthly.set(f"{self.get_sum('monatlich'):.2f} €".replace(".", ","))
+        self.sum_quarterly.set(
+            f"{self.get_sum('quartalsmäßig'):.2f} €".replace(".", ",")
+        )
+        self.sum_semiannual.set(
+            f"{self.get_sum('halbjährlich'):.2f} €".replace(".", ",")
+        )
+        self.sum_yearly.set(f"{self.get_sum('jährlich'):.2f} €".replace(".", ","))
 
     def validate_input(self, new_text):
         if new_text == "":
@@ -327,6 +341,7 @@ class ResultFrame(ttk.Frame):
         label_result_yearly.grid(column=0, row=3, sticky="w", padx=20)
 
         sum_monthly = controller.input_frame.sum_monthly
+
         label_result_sum_monthly = ttk.Label(
             self, textvariable=sum_monthly, foreground="red", font=("Roboto", 14)
         )
@@ -366,6 +381,5 @@ class ResultFrame(ttk.Frame):
 
 if __name__ == "__main__":
     locale.setlocale(locale.LC_ALL, "de_DE.UTF-8")
-
     root = MainWindow()
     root.mainloop()
