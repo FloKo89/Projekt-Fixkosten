@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
+from tkinter import messagebox
 import csv
 import locale
 
@@ -36,7 +37,7 @@ class MainWindow(tk.Tk):
         file_menu.add_separator()
         file_menu.add_command(label="Drucken")
         file_menu.add_separator()
-        file_menu.add_command(label="Beenden")
+        file_menu.add_command(label="Beenden", command=self.input_frame.exit)
         application_menu.add_cascade(label="Datei", menu=file_menu)
 
         info_menu = tk.Menu(application_menu, tearoff=0)
@@ -49,6 +50,9 @@ class InputFrame(ttk.Frame):
         super().__init__(container, **kwargs)
 
         self.controller = controller
+
+        self.is_saved = True
+
         self.sum_monthly = tk.DoubleVar(value=0.00)
         self.sum_quarterly = tk.DoubleVar(value=0.00)
         self.sum_semiannual = tk.DoubleVar(value=0.00)
@@ -194,6 +198,8 @@ class InputFrame(ttk.Frame):
         else:
             print("Ungültige Eingabe")
 
+        self.is_saved = False
+
     def delete_selected_fixed_costs(self):
         selected_fixed_costs = self.treeview_fix_costs.selection()
         if selected_fixed_costs != ():
@@ -203,6 +209,7 @@ class InputFrame(ttk.Frame):
             print("Nichts ausgewählt!")
 
         self.calculate_sums()
+        self.is_saved = False
 
     def open_file(self):
         file_name = filedialog.askopenfilename(
@@ -221,6 +228,7 @@ class InputFrame(ttk.Frame):
                 self.treeview_fix_costs.insert("", "end", values=row)
 
         self.calculate_sums()
+        self.is_saved = False
 
     def save_file(self):
         file_name = filedialog.asksaveasfilename(
@@ -236,6 +244,18 @@ class InputFrame(ttk.Frame):
                 row = self.treeview_fix_costs.item(row_id)["values"]
                 print("save row:", row)
                 file.writerow(row)
+
+        self.is_saved = True
+
+    def exit(self):
+        if not self.is_saved:
+            response = messagebox.askyesno(
+                "Warnung", "Es gibt nicht gespeicherte Änderungen. Trotzdem beenden?"
+            )
+            if response:
+                self.controller.destroy()
+        else:
+            self.controller.destroy()  #
 
     def get_sum(self, interval):
         sum_list = []
