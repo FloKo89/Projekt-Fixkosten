@@ -9,17 +9,25 @@ class MainWindow(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.geometry("930x460")
+        self.geometry("1075x500")
         self.resizable(False, False)
         self.title("Fixkosten")
-        self.style = ttk.Style()
-        self.style.theme_use("vista")
         self.columnconfigure(0, weight=1)
+
+        style = ttk.Style()
+        style.theme_use("vista")
+        style.configure("Treeview", font=("Roboto", 12))
+        style.configure("Treeview.Heading", font=("Helvetica", 12, "bold"))
+        style.configure("TButton", font=("Roboto", 12))
+        style.configure("TLabel", font=("Roboto", 12))
+        style.configure("TRadiobutton", font=("Roboto", 12))
 
         self.input_frame = InputFrame(self, self)
         self.input_frame.grid(column=0, row=0, sticky=tk.NW, padx=5, pady=5)
         separator_bottom_horizontal = ttk.Separator(self, orient="horizontal")
-        separator_bottom_horizontal.grid(column=0, row=1, columnspan=2, sticky="ew")
+        separator_bottom_horizontal.grid(
+            column=0, row=1, columnspan=2, sticky="ew", pady=15
+        )
         self.result_frame = ResultFrame(self, self)
         self.result_frame.grid(
             column=0, row=2, columnspan=2, sticky=tk.NW, padx=5, pady=5
@@ -71,8 +79,9 @@ class InputFrame(ttk.Frame):
         label_net_income = ttk.Label(self, text="Nettoeinkommen:", font=("Roboto", 14))
         label_net_income.grid(column=0, row=0, padx=20, pady=10)
 
-        self.entry_net_income = ttk.Entry(self, width=15)
-        self.entry_net_income.insert(0, "0")
+        self.entry_net_income = ttk.Entry(
+            self, width=15, justify="right", font=14, text="€"
+        )
         self.entry_net_income.focus()
         self.entry_net_income.grid(column=1, row=0, padx=20)
 
@@ -94,15 +103,14 @@ class InputFrame(ttk.Frame):
 
         self.entry_receiver_var = tk.StringVar()
         self.entry_receiver = ttk.Entry(
-            self, width=30, textvariable=self.entry_receiver_var
+            self, width=15, textvariable=self.entry_receiver_var, font=14
         )
         self.entry_receiver.grid(column=1, row=3)
 
         label_sum = ttk.Label(self, text="Betrag:", font=("Roboto", 14))
         label_sum.grid(column=0, row=4, sticky="w", padx=20, pady=5)
 
-        self.entry_sum_var = tk.DoubleVar(value=0.00)
-        self.entry_sum = ttk.Entry(self, width=15, textvariable=self.entry_sum_var)
+        self.entry_sum = ttk.Entry(self, width=15, justify="right", font=14)
         self.entry_sum.configure(
             validate="key", validatecommand=(self.validate_input, "%P")
         )
@@ -146,29 +154,37 @@ class InputFrame(ttk.Frame):
             variable=self.selected_debiting_interval,
             value="jährlich",
         )
-        self.radiobutton_debiting_interval_monthly.grid(column=1, row=6, sticky="e")
-        self.radiobutton_debiting_interval_quarterly.grid(column=1, row=7, sticky="e")
-        self.radiobutton_debiting_interval_semiannual.grid(column=1, row=8, sticky="e")
-        self.radiobutton_debiting_interval_yearly.grid(column=1, row=9, sticky="e")
+        self.radiobutton_debiting_interval_monthly.grid(
+            column=1, row=6, sticky="w", padx=100
+        )
+        self.radiobutton_debiting_interval_quarterly.grid(
+            column=1, row=7, sticky="w", padx=100
+        )
+        self.radiobutton_debiting_interval_semiannual.grid(
+            column=1, row=8, sticky="w", padx=100
+        )
+        self.radiobutton_debiting_interval_yearly.grid(
+            column=1, row=9, sticky="w", padx=100
+        )
 
         self.treeview_fix_costs = ttk.Treeview(
             self, selectmode="extended", columns=("receiver", "sum", "debit interval")
         )
-        self.treeview_fix_costs.grid(column=3, row=0, rowspan=7, columnspan=2, pady=15)
+        self.treeview_fix_costs.grid(column=3, row=0, rowspan=7, columnspan=4, pady=15)
 
         self.treeview_fix_costs.heading("#0", text="Tree Column")
         self.treeview_fix_costs.heading("receiver", text="Empfänger")
         self.treeview_fix_costs.heading("sum", text="Betrag")
-        self.treeview_fix_costs.heading("debit interval", text="Abbuchungsintervall")
+        self.treeview_fix_costs.heading("debit interval", text="Abbuchung")
         self.treeview_fix_costs.column("#0", width=0, stretch=tk.NO)
-        self.treeview_fix_costs.column("receiver", width=220)
-        self.treeview_fix_costs.column("sum", width=115)
-        self.treeview_fix_costs.column("debit interval", width=120)
+        self.treeview_fix_costs.column("receiver", width=240)
+        self.treeview_fix_costs.column("sum", width=100)
+        self.treeview_fix_costs.column("debit interval", width=130)
 
         self.scrollbar_list = ttk.Scrollbar(
             self, orient="vertical", command=self.treeview_fix_costs.yview
         )
-        self.scrollbar_list.grid(column=5, row=0, rowspan=7, sticky="ns")
+        self.scrollbar_list.grid(column=7, row=0, rowspan=7, sticky="ns")
         self.treeview_fix_costs.configure(xscrollcommand=self.scrollbar_list.set)
 
         button_remove_from_list = ttk.Button(
@@ -322,60 +338,60 @@ class ResultFrame(ttk.Frame):
         label_result_monthly = ttk.Label(
             self, text="monatliche Kosten:", font=("Roboto", 14)
         )
-        label_result_monthly.grid(column=0, row=0, sticky="w", padx=20)
+        label_result_monthly.grid(column=1, row=0, sticky="w", padx=20)
 
         label_result_quarterly = ttk.Label(
             self, text="quartalsmäßige Kosten:", font=("Roboto", 14)
         )
-        label_result_quarterly.grid(column=0, row=1, sticky="w", padx=20)
+        label_result_quarterly.grid(column=1, row=1, sticky="w", padx=20)
 
         label_result_semiannual = ttk.Label(
             self, text="halbjährliche Kosten:", font=("Roboto", 14)
         )
-        label_result_semiannual.grid(column=0, row=2, sticky="w", padx=20)
+        label_result_semiannual.grid(column=1, row=2, sticky="w", padx=20)
 
         label_result_yearly = ttk.Label(
             self, text="jährliche Kosten:", font=("Roboto", 14)
         )
-        label_result_yearly.grid(column=0, row=3, sticky="w", padx=20)
+        label_result_yearly.grid(column=1, row=3, sticky="w", padx=20)
 
         sum_monthly = controller.input_frame.sum_monthly
 
         label_result_sum_monthly = ttk.Label(
             self, textvariable=sum_monthly, foreground="red", font=("Roboto", 14)
         )
-        label_result_sum_monthly.grid(column=1, row=0)
+        label_result_sum_monthly.grid(column=2, row=0)
 
         sum_quarterly = controller.input_frame.sum_quarterly
         label_result_sum_quarterly = ttk.Label(
             self, textvariable=sum_quarterly, foreground="red", font=("Roboto", 14)
         )
-        label_result_sum_quarterly.grid(column=1, row=1)
+        label_result_sum_quarterly.grid(column=2, row=1)
 
         sum_semiannual = controller.input_frame.sum_semiannual
         label_result_sum_semiannual = ttk.Label(
             self, textvariable=sum_semiannual, foreground="red", font=("Roboto", 14)
         )
-        label_result_sum_semiannual.grid(column=1, row=2)
+        label_result_sum_semiannual.grid(column=2, row=2)
 
         sum_yearly = controller.input_frame.sum_yearly
         label_result_sum_yearly = ttk.Label(
             self, textvariable=sum_yearly, foreground="red", font=("Roboto", 14)
         )
-        label_result_sum_yearly.grid(column=1, row=3)
+        label_result_sum_yearly.grid(column=2, row=3)
 
         separator_vertical = ttk.Separator(self, orient="vertical")
-        separator_vertical.grid(column=2, row=0, rowspan=4, sticky="ns", padx=35)
+        separator_vertical.grid(column=3, row=0, rowspan=4, sticky="ns", padx=35)
 
-        label_result_sum_total = ttk.Label(
+        label_result_total = ttk.Label(
             self, text="Vom Nettogehalt bleiben im Schnitt übrig:", font=("Roboto", 14)
         )
-        label_result_sum_total.grid(column=3, row=1, padx=20)
+        label_result_total.grid(column=4, row=1, padx=20)
 
-        label_result_sum_total2 = ttk.Label(
+        label_result_sum_total = ttk.Label(
             self, text="Betrag", foreground="red", font=("Roboto", 14)
         )
-        label_result_sum_total2.grid(column=4, row=1)
+        label_result_sum_total.grid(column=5, row=1)
 
 
 if __name__ == "__main__":
