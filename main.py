@@ -65,8 +65,8 @@ class MainWindow(tk.Tk):
         application_menu.add_cascade(label="Info", menu=info_menu)
 
     def show_version_info(self):
-        version = "0.0.1"
-        release_date = "22. August 2023"
+        version = "0.1.0"
+        release_date = "23. August 2023"
         developer_info = "Entwickelt von FloKo. \nAlle Rechte vorbehalten.\n"
         contact_info = "Kontakt: f.kotulla@gmx.de"
         website_link = (
@@ -88,12 +88,17 @@ class InputFrame(ttk.Frame):
         self.sum_quarterly = tk.DoubleVar(value=0.00)
         self.sum_semiannual = tk.DoubleVar(value=0.00)
         self.sum_yearly = tk.DoubleVar(value=0.00)
+        self.sum_total = tk.DoubleVar(value=0.00)
+        self.sum_net_income = tk.DoubleVar(value=0.00)
 
         label_net_income = ttk.Label(self, text="Nettoeinkommen:", font=("Roboto", 14))
         label_net_income.grid(column=0, row=0, padx=20, pady=10)
 
         self.entry_net_income = ttk.Entry(self, width=15, justify="right", font=14)
         self.entry_net_income.focus()
+        self.entry_net_income.configure(
+            validate="key", validatecommand=(self.validate_input, "%P")
+        )
         self.entry_net_income.grid(column=1, row=0, sticky="e")
 
         label_currency = ttk.Label(self, text="€", font=("Roboto", 14), width=2)
@@ -244,8 +249,8 @@ class InputFrame(ttk.Frame):
                 "Empfänger, Betrag und Abbuchungsintervall müssen ausgefüllt sein!",
             )
 
-        self.is_saved = False
         self.calculate_sums()
+        self.is_saved = False
 
     def delete_selected_fixed_costs(self):
         selected_fixed_costs = self.treeview_fix_costs.selection()
@@ -300,7 +305,7 @@ class InputFrame(ttk.Frame):
             if response:
                 self.controller.destroy()
         else:
-            self.controller.destroy()  #
+            self.controller.destroy()
 
     def get_sum(self, interval):
         sum_list = []
@@ -325,6 +330,23 @@ class InputFrame(ttk.Frame):
             f"{self.get_sum('halbjährlich'):.2f} €".replace(".", ",")
         )
         self.sum_yearly.set(f"{self.get_sum('jährlich'):.2f} €".replace(".", ","))
+        self.calculate_total()
+
+    def calculate_total(self):
+        try:
+            net_income = float(self.entry_net_income.get().replace(",", "."))
+            total = (
+                net_income
+                - self.get_sum("monatlich")
+                - self.get_sum("quartalsmäßig") / 3
+                - self.get_sum("halbjährlich") / 6
+                - self.get_sum("jährlich") / 12
+            )
+            self.sum_total.set(f"{total:.2f} €".replace(".", ","))
+        except ValueError:
+            messagebox.showerror(
+                "Fehler", "Nettoeinkommen muss ausgefüllt sein und eine Zahl sein!"
+            )
 
     def validate_input(self, new_text):
         if new_text == "":
@@ -403,8 +425,9 @@ class ResultFrame(ttk.Frame):
         )
         label_result_total.grid(column=4, row=1, padx=20)
 
+        sum_total = controller.input_frame.sum_total
         label_result_sum_total = ttk.Label(
-            self, text="Betrag", foreground="red", font=("Roboto", 14)
+            self, textvariable=sum_total, foreground="red", font=("Roboto", 14)
         )
         label_result_sum_total.grid(column=5, row=1)
 
