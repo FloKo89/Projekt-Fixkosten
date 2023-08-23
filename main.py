@@ -21,6 +21,8 @@ class MainWindow(tk.Tk):
         style.configure("TButton", font=("Roboto", 12))
         style.configure("TLabel", font=("Roboto", 12))
         style.configure("TRadiobutton", font=("Roboto", 12))
+        style.configure("TEntry", font=("Roboto", 12))
+        style.configure("TMenuitem", font=("Roboto", 12))
 
         self.input_frame = InputFrame(self, self)
         self.input_frame.grid(column=0, row=0, sticky=tk.NW, padx=5, pady=5)
@@ -37,18 +39,29 @@ class MainWindow(tk.Tk):
         application_menu = tk.Menu(self)
         self.configure(menu=application_menu)
         file_menu = tk.Menu(application_menu, tearoff=0)
-        file_menu.add_command(label="Datei laden", command=self.input_frame.open_file)
         file_menu.add_command(
-            label="Datei speichern", command=self.input_frame.save_file
+            label="Datei laden", font=("Roboto", 10), command=self.input_frame.open_file
+        )
+        file_menu.add_command(
+            label="Datei speichern",
+            font=("Roboto", 10),
+            command=self.input_frame.save_file,
         )
         file_menu.add_separator()
-        file_menu.add_command(label="Drucken")
+        file_menu.add_command(label="Drucken", font=("Roboto", 10))
         file_menu.add_separator()
-        file_menu.add_command(label="Beenden", command=self.input_frame.exit)
-        application_menu.add_cascade(label="Datei", menu=file_menu)
+        file_menu.add_command(
+            label="Beenden", font=("Roboto", 10), command=self.input_frame.exit
+        )
+        application_menu.add_cascade(
+            label="Datei",
+            menu=file_menu,
+        )
 
         info_menu = tk.Menu(application_menu, tearoff=0)
-        info_menu.add_command(label="Version", command=self.show_version_info)
+        info_menu.add_command(
+            label="Version", font=("Roboto", 10), command=self.show_version_info
+        )
         application_menu.add_cascade(label="Info", menu=info_menu)
 
     def show_version_info(self):
@@ -79,14 +92,12 @@ class InputFrame(ttk.Frame):
         label_net_income = ttk.Label(self, text="Nettoeinkommen:", font=("Roboto", 14))
         label_net_income.grid(column=0, row=0, padx=20, pady=10)
 
-        self.entry_net_income = ttk.Entry(
-            self, width=15, justify="right", font=14, text="€"
-        )
+        self.entry_net_income = ttk.Entry(self, width=15, justify="right", font=14)
         self.entry_net_income.focus()
-        self.entry_net_income.grid(column=1, row=0, padx=20)
+        self.entry_net_income.grid(column=1, row=0, sticky="e")
 
-        label_currency = ttk.Label(self, text="€", font=("Roboto", 14))
-        label_currency.grid(column=2, row=0)
+        label_currency = ttk.Label(self, text="€", font=("Roboto", 14), width=2)
+        label_currency.grid(column=2, row=0, sticky="w")
 
         seperator_top_horizontal = ttk.Separator(self, orient="horizontal")
         seperator_top_horizontal.grid(column=0, row=1, columnspan=2, sticky="ew")
@@ -103,9 +114,9 @@ class InputFrame(ttk.Frame):
 
         self.entry_receiver_var = tk.StringVar()
         self.entry_receiver = ttk.Entry(
-            self, width=15, textvariable=self.entry_receiver_var, font=14
+            self, width=25, textvariable=self.entry_receiver_var, font=14
         )
-        self.entry_receiver.grid(column=1, row=3)
+        self.entry_receiver.grid(column=1, row=3, sticky="e")
 
         label_sum = ttk.Label(self, text="Betrag:", font=("Roboto", 14))
         label_sum.grid(column=0, row=4, sticky="w", padx=20, pady=5)
@@ -114,10 +125,10 @@ class InputFrame(ttk.Frame):
         self.entry_sum.configure(
             validate="key", validatecommand=(self.validate_input, "%P")
         )
-        self.entry_sum.grid(column=1, row=4)
+        self.entry_sum.grid(column=1, row=4, sticky="e")
 
-        label_sum_currency = ttk.Label(self, text="€", font=("Roboto", 14))
-        label_sum_currency.grid(column=2, row=4)
+        label_sum_currency = ttk.Label(self, text="€", font=("Roboto", 14), width=2)
+        label_sum_currency.grid(column=2, row=4, sticky="w")
 
         label_debiting_interval = ttk.Label(
             self, text="Abbuchungsintervall:", font=("Roboto", 14)
@@ -333,6 +344,10 @@ class ResultFrame(ttk.Frame):
         super().__init__(container, **kwargs)
         self.controller = controller
         self.columnconfigure(0, weight=4)
+        self.columnconfigure(1, weight=1)
+        self.columnconfigure(2, weight=1)
+        self.columnconfigure(4, weight=1)
+        self.columnconfigure(5, weight=1)
         self.rowconfigure(0, weight=1)
 
         label_result_monthly = ttk.Label(
@@ -360,25 +375,25 @@ class ResultFrame(ttk.Frame):
         label_result_sum_monthly = ttk.Label(
             self, textvariable=sum_monthly, foreground="red", font=("Roboto", 14)
         )
-        label_result_sum_monthly.grid(column=2, row=0)
+        label_result_sum_monthly.grid(column=2, row=0, sticky="ew")
 
         sum_quarterly = controller.input_frame.sum_quarterly
         label_result_sum_quarterly = ttk.Label(
             self, textvariable=sum_quarterly, foreground="red", font=("Roboto", 14)
         )
-        label_result_sum_quarterly.grid(column=2, row=1)
+        label_result_sum_quarterly.grid(column=2, row=1, sticky="ew")
 
         sum_semiannual = controller.input_frame.sum_semiannual
         label_result_sum_semiannual = ttk.Label(
             self, textvariable=sum_semiannual, foreground="red", font=("Roboto", 14)
         )
-        label_result_sum_semiannual.grid(column=2, row=2)
+        label_result_sum_semiannual.grid(column=2, row=2, sticky="ew")
 
         sum_yearly = controller.input_frame.sum_yearly
         label_result_sum_yearly = ttk.Label(
             self, textvariable=sum_yearly, foreground="red", font=("Roboto", 14)
         )
-        label_result_sum_yearly.grid(column=2, row=3)
+        label_result_sum_yearly.grid(column=2, row=3, sticky="ew")
 
         separator_vertical = ttk.Separator(self, orient="vertical")
         separator_vertical.grid(column=3, row=0, rowspan=4, sticky="ns", padx=35)
