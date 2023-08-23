@@ -5,66 +5,74 @@ from tkinter import messagebox
 import csv
 
 
-class MainWindow(tk.Tk):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+class MainWindow(tk.Tk):  # Erstellt das Fenster
+    def __init__(self, *args, **kwargs):  # Initialisiert das Fenster
+        super().__init__(*args, **kwargs)  # Erstellt das Fenster
 
-        self.geometry("1075x500")
-        self.resizable(False, False)
-        self.title("Fixkosten")
-        self.columnconfigure(0, weight=1)
+        self.geometry("1075x500")  # Größe des Fensters
+        self.resizable(False, False)  # Fenstergröße nicht veränderbar
+        self.title("Fixkosten")  # Titel des Fensters
+        self.columnconfigure(0, weight=1)  # Spalte 0 wird vergrößert
 
-        style = ttk.Style()
-        style.theme_use("vista")
-        style.configure("Treeview", font=("Roboto", 12))
-        style.configure("Treeview.Heading", font=("Helvetica", 12, "bold"))
-        style.configure("TButton", font=("Roboto", 12))
-        style.configure("TLabel", font=("Roboto", 12))
-        style.configure("TRadiobutton", font=("Roboto", 12))
-        style.configure("TEntry", font=("Roboto", 12))
-        style.configure("TMenuitem", font=("Roboto", 12))
+        style = ttk.Style()  # Erstellt ein Style Objekt
+        style.theme_use("vista")  # Wählt das Theme aus
+        style.configure("Treeview", font=("Roboto", 12))  # Konfiguriert den Treeview
+        style.configure(
+            "Treeview.Heading", font=("Helvetica", 12, "bold")
+        )  # Konfiguriert die Überschriften des Treeview
+        style.configure("TButton", font=("Roboto", 12))  # Konfiguriert die Buttons
+        style.configure("TLabel", font=("Roboto", 12))  # Konfiguriert die Labels
+        style.configure(
+            "TRadiobutton", font=("Roboto", 12)
+        )  # Konfiguriert die Radiobuttons
+        style.configure("TEntry", font=("Roboto", 12))  # Konfiguriert die Eingabefelder
+        style.configure("TMenuitem", font=("Roboto", 12))  # Konfiguriert die Menüpunkte
 
-        self.input_frame = InputFrame(self, self)
-        self.input_frame.grid(column=0, row=0, sticky=tk.NW, padx=5, pady=5)
-        separator_bottom_horizontal = ttk.Separator(self, orient="horizontal")
+        self.input_frame = InputFrame(self, self)  # Erstellt das InputFrame
+        self.input_frame.grid(
+            column=0, row=0, sticky=tk.NW, padx=5, pady=5
+        )  # Positioniert das InputFrame
+        separator_bottom_horizontal = ttk.Separator(
+            self, orient="horizontal"
+        )  # Erstellt einen horizontalen Separator
         separator_bottom_horizontal.grid(
             column=0, row=1, columnspan=2, sticky="ew", pady=15
-        )
-        self.result_frame = ResultFrame(self, self)
+        )  # Positioniert den horizontalen Separator
+        self.result_frame = ResultFrame(self, self)  # Erstellt das ResultFrame
         self.result_frame.grid(
             column=0, row=2, columnspan=2, sticky=tk.NW, padx=5, pady=5
-        )
+        )  # Positioniert das ResultFrame
 
         # Menu
-        application_menu = tk.Menu(self)
-        self.configure(menu=application_menu)
-        file_menu = tk.Menu(application_menu, tearoff=0)
+        application_menu = tk.Menu(self)  # Erstellt das Menu
+        self.configure(menu=application_menu)  # Konfiguriert das Menu
+        file_menu = tk.Menu(application_menu, tearoff=0)  # Erstellt das File Menu
         file_menu.add_command(
             label="Datei laden", font=("Roboto", 10), command=self.input_frame.open_file
-        )
+        )  # Erstellt den Menüpunkt "Datei laden"
         file_menu.add_command(
             label="Datei speichern",
             font=("Roboto", 10),
             command=self.input_frame.save_file,
-        )
+        )  # Erstellt den Menüpunkt "Datei speichern"
         file_menu.add_separator()
         file_menu.add_command(label="Drucken", font=("Roboto", 10))
         file_menu.add_separator()
         file_menu.add_command(
             label="Beenden", font=("Roboto", 10), command=self.input_frame.exit
-        )
+        )  # Erstellt den Menüpunkt "Beenden"
         application_menu.add_cascade(
             label="Datei",
             menu=file_menu,
-        )
+        )  # Erstellt den Menüpunkt "Datei"
 
         info_menu = tk.Menu(application_menu, tearoff=0)
         info_menu.add_command(
             label="Version", font=("Roboto", 10), command=self.show_version_info
-        )
+        )  # Erstellt den Menüpunkt "Version"
         application_menu.add_cascade(label="Info", menu=info_menu)
 
-    def show_version_info(self):
+    def show_version_info(self):  # Erstellt das Fenster mit den Versionsinformationen
         version = "0.1.0"
         release_date = "23. August 2023"
         developer_info = "Entwickelt von FloKo. \nAlle Rechte vorbehalten.\n"
@@ -76,7 +84,7 @@ class MainWindow(tk.Tk):
         messagebox.showinfo("Version Informationen", info_text)
 
 
-class InputFrame(ttk.Frame):
+class InputFrame(ttk.Frame):  # Erstellt das InputFrame
     def __init__(self, container, controller, **kwargs):
         super().__init__(container, **kwargs)
 
