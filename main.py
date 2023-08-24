@@ -88,9 +88,9 @@ class InputFrame(ttk.Frame):  # Erstellt das InputFrame
     def __init__(self, container, controller, **kwargs):
         super().__init__(container, **kwargs)
 
-        self.controller = controller
+        self.controller = controller  # Erstellt das Fenster
 
-        self.is_saved = True
+        self.is_saved = True  # Speicherstatus
 
         self.sum_monthly = tk.DoubleVar(value=0.00)
         self.sum_quarterly = tk.DoubleVar(value=0.00)
@@ -221,7 +221,7 @@ class InputFrame(ttk.Frame):  # Erstellt das InputFrame
         )
         button_calculate.grid(column=3, row=8)
 
-    def add_to_list(self):
+    def add_to_list(self):  # Fügt die Eingaben in die Liste ein
         if (
             self.entry_receiver_var.get() != ""
             and self.entry_sum.get() != ""
@@ -260,7 +260,9 @@ class InputFrame(ttk.Frame):  # Erstellt das InputFrame
         self.calculate_sums()
         self.is_saved = False
 
-    def delete_selected_fixed_costs(self):
+    def delete_selected_fixed_costs(
+        self,
+    ):  # Löscht die ausgewählten Einträge aus der Liste
         selected_fixed_costs = self.treeview_fix_costs.selection()
         if selected_fixed_costs != ():
             for selected_fixed_cost in selected_fixed_costs:
