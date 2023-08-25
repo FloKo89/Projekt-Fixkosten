@@ -77,8 +77,8 @@ class MainWindow(tk.Tk):  # Erstellt das Fenster
         application_menu.add_cascade(label="Info", menu=info_menu)
 
     def show_version_info(self):  # Erstellt das Fenster mit den Versionsinformationen
-        version = "0.1.0"
-        release_date = "23. August 2023"
+        version = "1.0.0"
+        release_date = "25. August 2023"
         developer_info = "Entwickelt von FloKo. \nAlle Rechte vorbehalten.\n"
         contact_info = "Kontakt: f.kotulla@gmx.de"
         website_link = (
