@@ -50,19 +50,17 @@ class MainWindow(tk.Tk):  # Erstellt das Fenster
         file_menu.add_command(
             label="Datei laden", font=("Roboto", 10), command=self.input_frame.open_file
         )  # Erstellt den Menüpunkt "Datei laden"
+        file_menu.add_separator()
         file_menu.add_command(
             label="Datei speichern",
             font=("Roboto", 10),
             command=self.input_frame.save_normal,
         )  # Erstellt den Menüpunkt "Datei speichern"
-
         file_menu.add_command(
             label="Datei speichern unter",
             font=("Roboto", 10),
             command=self.input_frame.save_file,
         )  # Erstellt den Menüpunkt "Datei speichern"
-        file_menu.add_separator()
-        file_menu.add_command(label="Drucken", font=("Roboto", 10))
         file_menu.add_separator()
         file_menu.add_command(
             label="Beenden", font=("Roboto", 10), command=self.input_frame.exit
