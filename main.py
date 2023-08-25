@@ -53,6 +53,12 @@ class MainWindow(tk.Tk):  # Erstellt das Fenster
         file_menu.add_command(
             label="Datei speichern",
             font=("Roboto", 10),
+            command=self.input_frame.save_normal,
+        )  # Erstellt den Menüpunkt "Datei speichern"
+
+        file_menu.add_command(
+            label="Datei speichern unter",
+            font=("Roboto", 10),
             command=self.input_frame.save_file,
         )  # Erstellt den Menüpunkt "Datei speichern"
         file_menu.add_separator()
@@ -91,6 +97,7 @@ class InputFrame(ttk.Frame):  # Erstellt das InputFrame
         self.controller = controller  # Erstellt das Fenster
 
         self.is_saved = True  # Speicherstatus
+        self.current_file = None  # Aktuelle Datei
 
         self.sum_monthly = tk.DoubleVar(value=0.00)
         self.sum_quarterly = tk.DoubleVar(value=0.00)
@@ -279,6 +286,7 @@ class InputFrame(ttk.Frame):  # Erstellt das InputFrame
             title="Datei öffnen",
             filetypes=(("CSV-Datei", "*.csv"),),
         )
+        self.current_file = file_name
 
         self.treeview_fix_costs.delete(*self.treeview_fix_costs.get_children())
 
@@ -289,23 +297,39 @@ class InputFrame(ttk.Frame):  # Erstellt das InputFrame
                 self.treeview_fix_costs.insert("", "end", values=row)
 
         self.calculate_sums()
-        self.is_saved = False
+        self.is_saved = True
 
-    def save_file(self):
-        file_name = filedialog.asksaveasfilename(
-            initialdir="savefiles",
-            title="Datei speichern",
-            defaultextension=".csv",
-            filetypes=(("CSV-Datei", "*.csv"),),
-        )
-        with open(file_name, "w", newline="") as my_file:
+    def save_file(self, save_as=True):
+        if save_as:
+            file_name = filedialog.asksaveasfilename(
+                initialdir="savefiles",
+                title="Datei speichern",
+                defaultextension=".csv",
+                filetypes=(("CSV-Datei", "*.csv"),),
+            )
+            if not file_name:
+                return  # Abbrechen, falls der Benutzer den Dialog schließt
+
+            self.current_file = file_name
+
+        with open(self.current_file, "w", newline="") as my_file:
             file = csv.writer(my_file, delimiter=",")
 
             for row_id in self.treeview_fix_costs.get_children():
                 row = self.treeview_fix_costs.item(row_id)["values"]
                 file.writerow(row)
+            self.is_saved = True
 
-        self.is_saved = True
+    # Hier ist die Funktion für die normale Speicherung
+    def save_normal(self):
+        if self.current_file:
+            with open(self.current_file, "w", newline="") as my_file:
+                file = csv.writer(my_file, delimiter=",")
+
+                for row_id in self.treeview_fix_costs.get_children():
+                    row = self.treeview_fix_costs.item(row_id)["values"]
+                    file.writerow(row)
+            self.is_saved = True
 
     def exit(self):
         if not self.is_saved:
