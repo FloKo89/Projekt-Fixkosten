@@ -355,7 +355,7 @@ class InputFrame(ttk.Frame):  # Erstellt das InputFrame
             self.sum_total.set(f"{total:.2f} €".replace(".", ","))
         except ValueError:
             messagebox.showerror(
-                "Fehler", "Nettoeinkommen muss ausgefüllt sein und eine Zahl sein!"
+                "Fehler", "Nettoeinkommen muss ausgefüllt und eine Zahl sein!"
             )
 
     def validate_input(self, new_text):
